@@ -1,241 +1,295 @@
-import javafx.application.Application;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
-
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LibraryManagementSystem extends Application {
+public class LibraryManagementSystem extends JFrame {
     private Map<String, User> users = new HashMap<>();
     private Map<String, Book> books = new HashMap<>();
-    private Stage primaryStage;
 
-    @Override
-    public void start(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-        primaryStage.setTitle("Kütüphane Yönetim Sistemi");
+    public LibraryManagementSystem() {
+        setTitle("Kütüphane Yönetim Sistemi");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(400, 300);
 
         showLoginPanel();
+    }
 
-        primaryStage.show();
+    private void showLoginPanel() {
+        JPanel loginPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        JLabel usernameLabel = new JLabel("Kullanıcı Adı:");
+        JTextField usernameField = new JTextField(15);
+        JLabel passwordLabel = new JLabel("Şifre:");
+        JPasswordField passwordField = new JPasswordField(15);
+
+        JButton loginButton = new JButton("Giriş Yap");
+        JButton registerButton = new JButton("Üye Ol");
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        loginPanel.add(usernameLabel, gbc);
+
+        gbc.gridx = 1;
+        loginPanel.add(usernameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        loginPanel.add(passwordLabel, gbc);
+
+        gbc.gridx = 1;
+        loginPanel.add(passwordField, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        loginPanel.add(loginButton, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        loginPanel.add(registerButton, gbc);
+
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String username = usernameField.getText();
+                String password = new String(passwordField.getPassword());
+
+                User user = getUser(username);
+                if (user != null && user.authenticate(password)) {
+                    showLibraryPanel(user);
+                } else {
+                    showMessage("Giriş Hatası", "Geçersiz kullanıcı adı veya şifre.");
+                }
+            }
+        });
+
+        registerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showRegistrationPanel();
+            }
+        });
+
+        setContentPane(loginPanel);
+        revalidate();
     }
 
     private void showRegistrationPanel() {
-        // Kayıt paneli
-        GridPane registrationPane = new GridPane();
-        registrationPane.setAlignment(Pos.CENTER);
-        registrationPane.setHgap(10);
-        registrationPane.setVgap(10);
-        registrationPane.setPadding(new Insets(10));
+        JPanel registrationPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
 
-        Label nameLabel = new Label("Ad:");
-        TextField nameField = new TextField();
-        registrationPane.add(nameLabel, 0, 0);
-        registrationPane.add(nameField, 1, 0);
+        JLabel nameLabel = new JLabel("Ad:");
+        JTextField nameField = new JTextField(15);
+        JLabel surnameLabel = new JLabel("Soyad:");
+        JTextField surnameField = new JTextField(15);
+        JLabel usernameLabel = new JLabel("Kullanıcı Adı:");
+        JTextField usernameField = new JTextField(15);
+        JLabel passwordLabel = new JLabel("Şifre:");
+        JPasswordField passwordField = new JPasswordField(15);
 
-        Label surnameLabel = new Label("Soyad:");
-        TextField surnameField = new TextField();
-        registrationPane.add(surnameLabel, 0, 1);
-        registrationPane.add(surnameField, 1, 1);
+        JButton registerButton = new JButton("Kayıt Ol");
+        JButton backButton = new JButton("Geri");
 
-        Label usernameLabel = new Label("Kullanıcı Adı:");
-        TextField usernameField = new TextField();
-        registrationPane.add(usernameLabel, 0, 2);
-        registrationPane.add(usernameField, 1, 2);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        registrationPanel.add(nameLabel, gbc);
 
-        Label passwordLabel = new Label("Şifre:");
-        PasswordField passwordField = new PasswordField();
-        registrationPane.add(passwordLabel, 0, 3);
-        registrationPane.add(passwordField, 1, 3);
+        gbc.gridx = 1;
+        registrationPanel.add(nameField, gbc);
 
-        Button registerButton = new Button("Kayıt Ol");
-        registerButton.setOnAction(event -> {
-            String name = nameField.getText();
-            String surname = surnameField.getText();
-            String username = usernameField.getText();
-            String password = passwordField.getText();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        registrationPanel.add(surnameLabel, gbc);
 
-            if (name.isEmpty() || surname.isEmpty() || username.isEmpty() || password.isEmpty()) {
-                showAlert(Alert.AlertType.WARNING, "Uyarı", "Tüm alanları doldurun.");
-            } else if (getUser(username) != null) {
-                showAlert(Alert.AlertType.WARNING, "Uyarı", "Bu kullanıcı adı zaten alınmış.");
-            } else {
-                User newUser = new User(username, password, 3);
-                addUser(newUser);
-                showAlert(Alert.AlertType.INFORMATION, "Başarılı", "Kayıt işlemi tamamlandı. Giriş yapabilirsiniz.");
+        gbc.gridx = 1;
+        registrationPanel.add(surnameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        registrationPanel.add(usernameLabel, gbc);
+
+        gbc.gridx = 1;
+        registrationPanel.add(usernameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        registrationPanel.add(passwordLabel, gbc);
+
+        gbc.gridx = 1;
+        registrationPanel.add(passwordField, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        registrationPanel.add(registerButton, gbc);
+
+        gbc.gridx = 0;
+        registrationPanel.add(backButton, gbc);
+
+        registerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = nameField.getText();
+                String surname = surnameField.getText();
+                String username = usernameField.getText();
+                String password = new String(passwordField.getPassword());
+
+                if (name.isEmpty() || surname.isEmpty() || username.isEmpty() || password.isEmpty()) {
+                    showMessage("Uyarı", "Tüm alanları doldurun.");
+                } else if (getUser(username) != null) {
+                    showMessage("Uyarı", "Bu kullanıcı adı zaten alınmış.");
+                } else {
+                    User newUser = new User(username, password, 3);
+                    addUser(newUser);
+                    showMessage("Başarılı", "Kayıt işlemi tamamlandı. Giriş yapabilirsiniz.");
+                    showLoginPanel();
+                }
+            }
+        });
+
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 showLoginPanel();
             }
         });
 
-        Button backButton = new Button("Geri");
-        backButton.setOnAction(event -> showLoginPanel());
-
-        registrationPane.add(registerButton, 1, 4);
-        registrationPane.add(backButton, 0, 4);
-
-        Scene registrationScene = new Scene(registrationPane, 400, 250);
-        primaryStage.setScene(registrationScene);
+        setContentPane(registrationPanel);
+        revalidate();
     }
 
-    private void showLoginPanel() {
-        // Giriş paneli
-        GridPane loginPane = new GridPane();
-        loginPane.setAlignment(Pos.CENTER);
-        loginPane.setHgap(10);
-        loginPane.setVgap(10);
-        loginPane.setPadding(new Insets(10));
+    private void showLibraryPanel(User user) {
+        JPanel libraryPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
 
-        Label usernameLabel = new Label("Kullanıcı Adı:");
-        TextField usernameField = new TextField();
-        loginPane.add(usernameLabel, 0, 0);
-        loginPane.add(usernameField, 1, 0);
+        JLabel welcomeLabel = new JLabel("Hoş Geldiniz, " + user.getUsername());
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 18));
 
-        Label passwordLabel = new Label("Şifre:");
-        PasswordField passwordField = new PasswordField();
-        loginPane.add(passwordLabel, 0, 1);
-        loginPane.add(passwordField, 1, 1);
+        JLabel nameLabel = new JLabel("Ad:");
+        JTextField nameField = new JTextField(15);
+        JLabel authorLabel = new JLabel("Yazar:");
+        JTextField authorField = new JTextField(15);
+        JLabel categoryLabel = new JLabel("Kategori:");
+        JTextField categoryField = new JTextField(15);
+        JLabel startsWithLabel = new JLabel("Baş harf:");
+        JTextField startsWithField = new JTextField(15);
 
-        Button loginButton = new Button("Giriş Yap");
-        loginButton.setOnAction(event -> {
-            String username = usernameField.getText();
-            String password = passwordField.getText();
+        JButton searchButton = new JButton("Ara");
+        JButton borrowButton = new JButton("Kitap Al");
+        JButton logoutButton = new JButton("Çıkış Yap");
 
-            User user = getUser(username);
-            if (user != null && user.authenticate(password)) {
-                primaryStage.setScene(createLibraryScene(primaryStage, user));
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Giriş Hatası", "Geçersiz kullanıcı adı veya şifre.");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        libraryPanel.add(welcomeLabel, gbc);
+        gbc.gridwidth = 1;
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        libraryPanel.add(nameLabel, gbc);
+
+        gbc.gridx = 1;
+        libraryPanel.add(nameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        libraryPanel.add(authorLabel, gbc);
+
+        gbc.gridx = 1;
+        libraryPanel.add(authorField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        libraryPanel.add(categoryLabel, gbc);
+
+        gbc.gridx = 1;
+        libraryPanel.add(categoryField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        libraryPanel.add(startsWithLabel, gbc);
+
+        gbc.gridx = 1;
+        libraryPanel.add(startsWithField, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        libraryPanel.add(searchButton, gbc);
+
+        gbc.gridy = 6;
+        libraryPanel.add(borrowButton, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        libraryPanel.add(logoutButton, gbc);
+
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = nameField.getText();
+                String author = authorField.getText();
+                String category = categoryField.getText();
+                String startsWith = startsWithField.getText();
+
+                searchBooks(name, author, category, startsWith);
             }
         });
 
-        Button registerButton = new Button("Üye Ol");
-        registerButton.setOnAction(event -> showRegistrationPanel());
+        borrowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = nameField.getText();
+                String author = authorField.getText();
+                String category = categoryField.getText();
+                String startsWith = startsWithField.getText();
 
-        loginPane.add(loginButton, 1, 2);
-        loginPane.add(registerButton, 1, 3);
+                borrowBook(user, name, author, category, startsWith);
+            }
+        });
 
-        Scene loginScene = new Scene(loginPane, 400, 200);
-        primaryStage.setScene(loginScene);
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showLoginPanel();
+            }
+        });
+
+        setContentPane(libraryPanel);
+        revalidate();
     }
 
     private User getUser(String username) {
-        for (User user : users.values()) {
-            if (user.getUsername().equals(username)) {
-                return user;
-            }
-        }
-        return null;
+        return users.get(username);
     }
 
     private void addUser(User user) {
-        if (getUser(user.getUsername()) == null) {
-            users.put(user.getUsername(), user);
-        } else {
-            showAlert(Alert.AlertType.WARNING, "Uyarı", "Bu kullanıcı adı zaten alınmış.");
-        }
+        users.put(user.getUsername(), user);
     }
 
     private void addBook(Book book) {
         books.put(book.getTitle(), book);
     }
 
-    private void showAlert(Alert.AlertType alertType, String title, String message) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private Scene createLibraryScene(Stage primaryStage, User user) {
-        // Kütüphane paneli
-        GridPane libraryPane = new GridPane();
-        libraryPane.setAlignment(Pos.CENTER);
-        libraryPane.setHgap(10);
-        libraryPane.setVgap(10);
-        libraryPane.setPadding(new Insets(10));
-
-        Label welcomeLabel = new Label("Hoş Geldiniz, " + user.getUsername());
-        welcomeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
-        libraryPane.add(welcomeLabel, 0, 0, 2, 1);
-
-        Label nameLabel = new Label("Ad:");
-        TextField nameField = new TextField();
-        libraryPane.add(nameLabel, 0, 1);
-        libraryPane.add(nameField, 1, 1);
-
-        Label authorLabel = new Label("Yazar:");
-        TextField authorField = new TextField();
-        libraryPane.add(authorLabel, 0, 2);
-        libraryPane.add(authorField, 1, 2);
-
-        Label categoryLabel = new Label("Kategori:");
-        TextField categoryField = new TextField();
-        libraryPane.add(categoryLabel, 0, 3);
-        libraryPane.add(categoryField, 1, 3);
-
-        Label startsWithLabel = new Label("Baş harf:");
-        TextField startsWithField = new TextField();
-        libraryPane.add(startsWithLabel, 0, 4);
-        libraryPane.add(startsWithField, 1, 4);
-
-        Button searchButton = new Button("Ara");
-        searchButton.setOnAction(event -> {
-            String name = nameField.getText();
-            String author = authorField.getText();
-            String category = categoryField.getText();
-            String startsWith = startsWithField.getText();
-
-            searchBooks(name, author, category, startsWith);
-        });
-
-        Button borrowButton = new Button("Kitap Al");
-        borrowButton.setOnAction(event -> {
-            String name = nameField.getText();
-            String author = authorField.getText();
-            String category = categoryField.getText();
-            String startsWith = startsWithField.getText();
-
-            borrowBook(user, name, author, category, startsWith);
-        });
-
-        Button logoutButton = new Button("Çıkış Yap");
-        logoutButton.setOnAction(event -> showLoginPanel());
-
-        libraryPane.add(searchButton, 1, 5);
-        libraryPane.add(borrowButton, 1, 6);
-        libraryPane.add(logoutButton, 0, 5);
-
-        Scene libraryScene = new Scene(libraryPane, 400, 300);
-        return libraryScene;
+    private void showMessage(String title, String message) {
+        JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void searchBooks(String name, String author, String category, String startsWith) {
-        // Kitap arama işlemleri burada yapılır
-        // Sonuçları kullanıcıya göstermek için gerekli kodu ekleyebilirsiniz
-        // Örnek bir arama işlevi:
         for (Book book : books.values()) {
             if (bookMatchesCriteria(book, name, author, category, startsWith)) {
-                // Kitap kriterlere uyan bir kitaptır, sonuçları kullanıcıya gösterin
                 System.out.println("Kitap Bulundu: " + book.getTitle());
             }
         }
     }
 
     private boolean bookMatchesCriteria(Book book, String name, String author, String category, String startsWith) {
-        // Kitap, verilen kriterlere uyan bir kitap mı kontrolün
-        // Eğer kitap kriterlere uyanıyorsa true, aksi takdirde false döndürün
-        // Örneğin, kitap adı veya yazarı verilen değerlere uyuyorsa true dönebilirsiniz
         if (name.isEmpty() && author.isEmpty() && category.isEmpty() && startsWith.isEmpty()) {
-            return true; // Tüm kriterler boşsa, her kitap uyuyor gibi kabul edin
+            return true;
         }
 
         boolean nameMatch = book.getTitle().toLowerCase().contains(name.toLowerCase());
@@ -247,12 +301,8 @@ public class LibraryManagementSystem extends Application {
     }
 
     private void borrowBook(User user, String name, String author, String category, String startsWith) {
-        // Kitap alma işlemi burada yapılır
-        // Gerekli kontroller ve işlemleri gerçekleştirebilirsiniz
-        // Örnek bir kitap alma işlemi:
         for (Book book : books.values()) {
             if (bookMatchesCriteria(book, name, author, category, startsWith) && book.getQuantity() > 0) {
-                // Kitap kriterlere uyan ve stokta varsa
                 user.addBook(book);
                 book.setQuantity(book.getQuantity() - 1);
                 System.out.println(user.getUsername() + " adlı kullanıcı " + book.getTitle() + " adlı kitabı aldı.");
@@ -262,16 +312,25 @@ public class LibraryManagementSystem extends Application {
         System.out.println("Kitap alınamadı. Belirtilen kriterlere uygun kitap bulunamadı veya stokta yok.");
     }
 
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new LibraryManagementSystem().setVisible(true);
+            }
+        });
+    }
+
     private class User {
         private String username;
         private String password;
-        private IntegerProperty maxBooks;
+        private int maxBooks;
         private Map<String, Book> borrowedBooks;
 
         public User(String username, String password, int maxBooks) {
             this.username = username;
             this.password = password;
-            this.maxBooks = new SimpleIntegerProperty(maxBooks);
+            this.maxBooks = maxBooks;
             this.borrowedBooks = new HashMap<>();
         }
 
@@ -284,10 +343,6 @@ public class LibraryManagementSystem extends Application {
         }
 
         public int getMaxBooks() {
-            return maxBooks.get();
-        }
-
-        public IntegerProperty maxBooksProperty() {
             return maxBooks;
         }
 
@@ -305,66 +360,42 @@ public class LibraryManagementSystem extends Application {
     }
 
     private class Book {
-        private StringProperty title;
-        private IntegerProperty quantity;
-        private StringProperty category;
-        private StringProperty author;
-        private IntegerProperty year;
+        private String title;
+        private int quantity;
+        private String category;
+        private String author;
+        private int year;
 
         public Book(String title, int quantity, String category, String author, int year) {
-            this.title = new SimpleStringProperty(title);
-            this.quantity = new SimpleIntegerProperty(quantity);
-            this.category = new SimpleStringProperty(category);
-            this.author = new SimpleStringProperty(author);
-            this.year = new SimpleIntegerProperty(year);
+            this.title = title;
+            this.quantity = quantity;
+            this.category = category;
+            this.author = author;
+            this.year = year;
         }
 
         public String getTitle() {
-            return title.get();
-        }
-
-        public StringProperty titleProperty() {
             return title;
         }
 
         public int getQuantity() {
-            return quantity.get();
-        }
-
-        public void setQuantity(int quantity) {
-            this.quantity.set(quantity);
-        }
-
-        public IntegerProperty quantityProperty() {
             return quantity;
         }
 
-        public String getCategory() {
-            return category.get();
+        public void setQuantity(int quantity) {
+            this.quantity = quantity;
         }
 
-        public StringProperty categoryProperty() {
+        public String getCategory() {
             return category;
         }
 
         public String getAuthor() {
-            return author.get();
-        }
-
-        public StringProperty authorProperty() {
             return author;
         }
 
         public int getYear() {
-            return year.get();
-        }
-
-        public IntegerProperty yearProperty() {
             return year;
         }
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }
